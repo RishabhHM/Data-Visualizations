@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Patent Distribution Analysis (2000-2015)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: white;
+            border-radius: 15px;
+            padding: 50px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.8em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .meta {
+            font-size: 0.95em;
+            color: #999;
+            margin-top: 20px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .visualization-frame {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .viz-instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+        
+        .viz-instructions strong {
+            color: #856404;
+            font-size: 1.05em;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .viz-instructions ul {
+            margin-left: 0;
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .viz-instructions li {
+            margin-bottom: 8px;
+            color: #856404;
+        }
+        
+        .viz-note {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #0c5460;
+        }
+        
+        .viz-note strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .tableauPlaceholder {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+        
+        .top-areas-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .area-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .area-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        
+        .area-rank {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            line-height: 1;
+        }
+        
+        .area-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+        
+        .area-stats {
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .stat-highlight {
+            color: #764ba2;
+            font-weight: bold;
+        }
+        
+        .growth-card {
+            border-left: 5px solid #28a745;
+        }
+        
+        .growth-card .area-rank {
+            color: #28a745;
+        }
+        
+        .analysis-text {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #764ba2;
+        }
+        
+        .methodology {
+            background: #f0f0f0;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        
+        .methodology h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        ul {
+            margin-left: 40px;
+            margin-top: 15px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .data-source {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .section {
+                padding: 25px;
+            }
+            
+            .top-areas-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>U.S. Patent Distribution Analysis</h1>
+            <div class="subtitle">Geographic Patterns of Innovation Across Metropolitan Statistical Areas</div>
+            <div class="subtitle">2000-2015 Comparative Study</div>
+            <div class="meta">
+                Data Analysis & Visualization Project<br>
+                Data Sources: U.S. Patent and Trademark Office (USPTO) & U.S. Census Bureau
+            </div>
+        </header>
+
+        <!-- Executive Summary -->
+        <div class="section">
+            <h2>Executive Summary</h2>
+            <p>
+                This comprehensive analysis examines the spatial distribution of patent activity across United States Metropolitan Statistical Areas (MSAs) over a 15-year period (2000-2015). By analyzing utility patent grants classified by the residence of first-named inventors, we identify critical innovation hubs, emerging technology centers, and regional growth patterns that shape America's competitive landscape in the global knowledge economy.
+            </p>
+        </div>
+
+        <!-- Tableau Visualization -->
+        <div class="section">
+            <h2>🗺️ Interactive Visualizations</h2>
+            
+            <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 20px;">Tableau Dashboard</h3>
+            
+            <div class="viz-instructions">
+                <strong>💡 Interactive Features:</strong>
+                <ul>
+                    <li>Use the tabs to switch between different visualizations and explore patent distribution patterns</li>
+                    <li>Hover over regions to see detailed statistics including patent counts and growth rates</li>
+                    <li>Click on MSAs to filter and highlight specific metropolitan areas</li>
+                    <li>Use the <strong>"Highlight Top 5 Patent Count"</strong> and <strong>"Highlight Top 5 Patent Growth"</strong> filters with "In" option to highlight the top 5 MSAs, or "Out" option to highlight all other MSAs</li>
+                    <li>To exit a highlight selection, simply click anywhere on the map</li>
+                </ul>
+            </div>
+            
+            <div class="viz-note">
+                <strong>📌 Note:</strong> The tabs "2015 Patent Distribution" and "Patent Expansion 2000→2015" have the "In" highlight active by default, showcasing the top 5 MSAs in each category.
+            </div>
+            <br>
+            <div class='tableauPlaceholder' id='viz1764981415948' style='position: relative'>
+                <noscript>
+                    <a href='#'>
+                        <img alt=' ' src='https://public.tableau.com/static/images/MS/MSAPatentDistribution/2015PatentDistribution/1_rss.png' style='border: none' />
+                    </a>
+                </noscript>
+                <object class='tableauViz' style='display:none;'>
+                    <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
+                    <param name='embed_code_version' value='3' /> 
+                    <param name='site_root' value='' />
+                    <param name='name' value='MSAPatentDistribution/2015PatentDistribution' />
+                    <param name='tabs' value='yes' />
+                    <param name='toolbar' value='yes' />
+                    <param name='static_image' value='https://public.tableau.com/static/images/MS/MSAPatentDistribution/2015PatentDistribution/1.png' /> 
+                    <param name='animate_transition' value='yes' />
+                    <param name='display_static_image' value='yes' />
+                    <param name='display_spinner' value='yes' />
+                    <param name='display_overlay' value='yes' />
+                    <param name='display_count' value='yes' />
+                    <param name='language' value='en-US' />
+                    <param name='filter' value='publish=yes' />
+                </object>
+            </div>
+            <script type='text/javascript'>
+                var divElement = document.getElementById('viz1764981415948');
+                var vizElement = divElement.getElementsByTagName('object')[0];
+                vizElement.style.width='100%';
+                vizElement.style.height=(divElement.offsetWidth*0.75)+'px';
+                var scriptElement = document.createElement('script');
+                scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+                vizElement.parentNode.insertBefore(scriptElement, vizElement);
+            </script>
+        </div>
+
+        <!-- Top MSAs Section -->
+        <div class="section">
+            <h2>🏅 Leading Metropolitan Statistical Areas</h2>
+            
+            <h3>Top 5 Innovation Powerhouses (2015)</h3>
+            <div class="top-areas-grid">
+                <div class="area-card">
+                    <div class="area-rank">#1</div>
+                    <div class="area-name">San Jose-Sunnyvale-Santa Clara, CA</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">14,618</strong> patents in 2015<br>
+                        <strong class="stat-highlight">151.6%</strong> growth from 2000
+                    </div>
+                </div>
+                
+                <div class="area-card">
+                    <div class="area-rank">#2</div>
+                    <div class="area-name">San Francisco-Oakland-Fremont, CA</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">9,732</strong> patents in 2015<br>
+                        <strong class="stat-highlight">168.5%</strong> growth from 2000
+                    </div>
+                </div>
+                
+                <div class="area-card">
+                    <div class="area-rank">#3</div>
+                    <div class="area-name">New York-Northern NJ-Long Island</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">7,754</strong> patents in 2015<br>
+                        <strong class="stat-highlight">36.3%</strong> growth from 2000
+                    </div>
+                </div>
+                
+                <div class="area-card">
+                    <div class="area-rank">#4</div>
+                    <div class="area-name">Los Angeles-Long Beach-Santa Ana, CA</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">6,476</strong> patents in 2015<br>
+                        <strong class="stat-highlight">67.0%</strong> growth from 2000
+                    </div>
+                </div>
+                
+                <div class="area-card">
+                    <div class="area-rank">#5</div>
+                    <div class="area-name">Boston-Cambridge-Quincy, MA</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">5,949</strong> patents in 2015<br>
+                        <strong class="stat-highlight">100.2%</strong> growth from 2000
+                    </div>
+                </div>
+            </div>
+
+            <h3>Top 5 MSAs by Growth (2000–2015)</h3>
+            <div class="top-areas-grid">
+                <div class="area-card growth-card">
+                    <div class="area-rank">#1</div>
+                    <div class="area-name">Jacksonville, NC</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">1,000.0%</strong> growth<br>
+                        1 patent (2000) → 11 patents (2015)
+                    </div>
+                </div>
+                
+                <div class="area-card growth-card">
+                    <div class="area-rank">#2</div>
+                    <div class="area-name">Jonesboro, AR</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">733.3%</strong> growth<br>
+                        3 patents (2000) → 25 patents (2015)
+                    </div>
+                </div>
+                
+                <div class="area-card growth-card">
+                    <div class="area-rank">#3</div>
+                    <div class="area-name">Tuscaloosa, AL</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">525.0%</strong> growth<br>
+                        4 patents (2000) → 25 patents (2015)
+                    </div>
+                </div>
+                
+                <div class="area-card growth-card">
+                    <div class="area-rank">#4</div>
+                    <div class="area-name">Bloomington, IN</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">514.3%</strong> growth<br>
+                        21 patents (2000) → 129 patents (2015)
+                    </div>
+                </div>
+                
+                <div class="area-card growth-card">
+                    <div class="area-rank">#5</div>
+                    <div class="area-name">Cheyenne, WY</div>
+                    <div class="area-stats">
+                        <strong class="stat-highlight">500.0%</strong> growth<br>
+                        3 patents (2000) → 18 patents (2015)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regional Analysis -->
+        <div class="section">
+            <h2>🔍 Trends & Analysis</h2>
+            
+            <div class="analysis-text">
+                <h3>Geographic Concentration of Innovation</h3>
+                <p>
+                    The 2015 Patent Distribution map reveals a striking concentration of patent activity along the coastal regions of the United States. The Bay Area in California displays the highest patent counts, shown in the deepest green coloring. Significant concentrations extend along the West Coast in the Seattle-Portland corridor and Southern California. On the East Coast, dense clusters appear in the Northeast Corridor from Boston through New York to the Research Triangle in North Carolina. The Midwest shows moderate activity centered around major metropolitan hubs like Chicago, Detroit, and Minneapolis, while vast interior regions display minimal patent activity in lighter shades or gray.
+                </p>
+            </div>
+            
+            <div class="analysis-text">
+                <h3>Growth Patterns Reveal Regional Transformation</h3>
+                <p>
+                    The Patent Expansion map (2000→2015) displays varied growth patterns across regions. California's Bay Area shows strong positive growth in green, indicating expansion in already dominant hubs. Small to medium-sized metropolitan areas across the Midwest, South, and interior West display deep green coloring, representing high percentage growth. Several traditionally strong patent regions show red or pink coloring, indicating decline or stagnation, particularly notable in parts of the Northeast and some Rust Belt cities.
+                </p>
+            </div>
+            
+            <div class="analysis-text">
+                <h3>Divergent Regional Patterns</h3>
+                <p>
+                    Comparing both maps reveals that absolute patent dominance remains concentrated in a handful of metropolitan areas, while percentage growth is often strongest in smaller MSAs. The West Coast, particularly California and the Pacific Northwest, shows both high absolute numbers and strong growth rates. Interior regions present lower overall patent activity, though selective metropolitan areas demonstrate growth rates exceeding 500%. This pattern illustrates the geographic distribution of innovation activity and the varying trajectories of different metropolitan regions across the 15-year period.
+                </p>
+            </div>
+        </div>
+
+        <!-- Methodology & Project Information -->
+        <div class="section">
+            <h2>Methodology</h2>
+            
+            <div class="methodology">
+                <h4>Data Sources</h4>
+                <ul>
+                    <li><strong>Patent Data:</strong> U.S. Patent and Trademark Office (USPTO) Technology Assessment and Forecast (TAF) database - Patenting in Technology Classes Breakout by U.S. Metropolitan Areas, covering utility patents granted from 2000-2015</li>
+                    <li><strong>Geographic Data:</strong> U.S. Census Bureau 2015 TIGER/Line Shapefiles for Core Based Statistical Areas (CBSAs)</li>
+                </ul>
+                
+                <h4>Geographic Classification</h4>
+                <ul>
+                    <li>Patents assigned to Metropolitan Statistical Areas based on first-named inventor residence</li>
+                    <li>Metropolitan Statistical Areas defined as CBSAs with urbanized areas of 50,000+ population</li>
+                    <li>Micropolitan areas excluded from analysis (focus on major innovation centers)</li>
+                    <li>Dataset coverage: ~380 Metropolitan Statistical Areas across the United States</li>
+                </ul>
+                
+                <h4>Metrics Calculated</h4>
+                <ul>
+                    <li><strong>Absolute Patent Counts:</strong> Total utility patents granted in 2000 and 2015</li>
+                    <li><strong>Growth Rate:</strong> Percentage change calculated as ((Patents_2015 - Patents_2000) / Patents_2000) × 100</li>
+                    <li><strong>Top 5 Patents:</strong> Metropolitan areas ranked by 2015 patent volume</li>
+                    <li><strong>Top 5 Patent Growth:</strong> Metropolitan areas ranked by percentage growth (2000-2015)</li>
+                </ul>
+                
+                <h4>Visualization Tools</h4>
+                <ul>
+                    <li><strong>Tableau Public:</strong> Used for creating interactive choropleth maps and dashboard with filtering capabilities</li>
+                    <li><strong>Interactive Dashboard:</strong> <a href="https://public.tableau.com/views/MSAPatentDistribution/2015PatentDistribution" target="_blank" style="color: #667eea; font-weight: bold;">View on Tableau Public</a></li>
+                </ul>
+                
+                <h4>Analysis Notes</h4>
+                <ul>
+                    <li>Patent counts represent utility patents only (not design or plant patents)</li>
+                    <li>Geographic assignment based on residence of first-named inventor</li>
+                    <li>All patent counts rounded to whole numbers per USPTO methodology</li>
+                    <li>Some CBSAs may show fractional patents due to multi-area assignments</li>
+                    <li>Time Period: Calendar Years 2000-2015</li>
+                    <li>Total Patents Analyzed: 150,000+ per year</li>
+                    <li><strong>Data Processing:</strong> Growth percentages resulting in infinite values (division by zero when 2000 patents = 0) or NaN values were replaced with 0 for visualization purposes. Affected MSAs include: Abilene, TX (10180); Hinesville-Fort Stewart, GA (25980); San Germán-Cabo Rojo, PR (41900); and Guayama, PR (25020)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p><strong>Patent Distribution Analysis: Metropolitan Statistical Areas (2000-2015)</strong></p>
+            <p style="margin-top: 15px; color: #999; font-size: 0.9em;">
+                <em>Created for academic/research purposes. Patent data is public domain. Census geographic data is public domain.</em>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
